@@ -307,6 +307,92 @@ docker image prune -f
 
 Removes unused old Docker images to save disk space.
 
+## Troubleshooting: Missing Server Host
+
+Error in GitHub Actions:
+
+```text
+Run appleboy/ssh-action@v1.2.0
+Run entrypoint.sh
+Will download drone-ssh-1.8.0-linux-amd64
+Error: missing server host
+```
+
+Meaning:
+
+```text
+GitHub Actions did not receive the EC2 host value.
+```
+
+Most common reason:
+
+```text
+EC2_HOST secret is missing or named incorrectly.
+```
+
+Fix:
+
+Go to:
+
+```text
+GitHub repository
+  -> Settings
+  -> Secrets and variables
+  -> Actions
+  -> New repository secret
+```
+
+Add:
+
+```text
+Name: EC2_HOST
+Value: 13.53.168.216
+```
+
+Also confirm these exist:
+
+```text
+EC2_USER
+EC2_SSH_KEY
+```
+
+Secret names must match exactly:
+
+```text
+EC2_HOST
+EC2_USER
+EC2_SSH_KEY
+```
+
+Wrong examples:
+
+```text
+EC2 HOST
+ec2_host
+EC2HOST
+EC2_Host
+```
+
+After adding the secrets, rerun the failed workflow:
+
+```text
+GitHub
+  -> Actions
+  -> Failed CI run
+  -> Re-run jobs
+```
+
+Or push an empty commit:
+
+```bash
+git commit --allow-empty -m "Rerun deployment"
+git push origin main
+```
+
+Interview answer:
+
+> The `missing server host` error means the SSH action did not receive the EC2 host value. I fixed it by adding the `EC2_HOST` repository secret with the EC2 public IP.
+
 ## Final Interview Explanation
 
 Say this:
