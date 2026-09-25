@@ -1,0 +1,92 @@
+<main class="auth-page signup-page">
+  <section class="auth-story">
+    <a class="brand brand-light" routerLink="/"><span class="brand-mark">P</span> PeopleSpace</a>
+    <div class="story-content">
+      <p class="eyebrow">Join your workspace</p>
+      <h1>A better home for your profile and community.</h1>
+      <p class="story-copy">Create your account in under a minute. Your dashboard is ready the moment you arrive.</p>
+      <ul class="benefit-list">
+        <li><span>✓</span> Clean, focused personal dashboard</li>
+        <li><span>✓</span> Secure cookie-based sessions</li>
+        <li><span>✓</span> Fast user tools for administrators</li>
+      </ul>
+    </div>
+    <p class="story-footer">Your password is safely hashed and never returned.</p>
+  </section>
+
+  <section class="auth-form-panel">
+    <div class="auth-form-wrap signup-form">
+      <div class="mobile-brand"><span class="brand-mark">P</span> PeopleSpace</div>
+      <p class="eyebrow">Get started</p>
+      <h2>Create your account</h2>
+      <p class="muted">Tell us a little about yourself.</p>
+
+      @if (error()) {
+        <div class="alert" role="alert">{{ error() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field-grid">
+          <div class="full-field">
+            <label for="name">Full name</label>
+            <input id="name" formControlName="name" placeholder="Your full name" autocomplete="name" />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <small class="field-error">Name is required.</small>
+            }
+          </div>
+          <div class="full-field">
+            <label for="email">Email address</label>
+            <input id="email" type="email" formControlName="email" placeholder="you@example.com" autocomplete="email" />
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <small class="field-error">Enter a valid email.</small>
+            }
+          </div>
+          <div>
+            <label for="phone">Phone</label>
+            <input id="phone" type="tel" formControlName="phone" placeholder="9876543210" autocomplete="tel" />
+            @if (form.controls.phone.touched && form.controls.phone.invalid) {
+              <small class="field-error">Enter a valid phone.</small>
+            }
+          </div>
+          <div>
+            <label for="city">City</label>
+            <input id="city" formControlName="city" placeholder="Your city" autocomplete="address-level2" />
+            @if (form.controls.city.touched && form.controls.city.invalid) {
+              <small class="field-error">City is required.</small>
+            }
+          </div>
+          <div>
+            <label for="pincode">Pincode</label>
+            <input id="pincode" formControlName="pincode" placeholder="110001" autocomplete="postal-code" />
+            @if (form.controls.pincode.touched && form.controls.pincode.invalid) {
+              <small class="field-error">Enter a valid pincode.</small>
+            }
+          </div>
+          <div>
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <input
+                id="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="At least 8 characters"
+                autocomplete="new-password"
+              />
+              <button class="reveal" type="button" (click)="showPassword.set(!showPassword())">
+                {{ showPassword() ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+            @if (form.controls.password.touched && form.controls.password.invalid) {
+              <small class="field-error">Use at least 8 characters.</small>
+            }
+          </div>
+        </div>
+        <button class="primary-button" type="submit" [disabled]="loading()">
+          {{ loading() ? 'Creating account…' : 'Create account' }}
+        </button>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a routerLink="/login">Sign in</a></p>
+    </div>
+  </section>
+</main>

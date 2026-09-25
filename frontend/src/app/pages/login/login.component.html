@@ -1,0 +1,63 @@
+<main class="auth-page">
+  <section class="auth-story">
+    <a class="brand brand-light" routerLink="/"><span class="brand-mark">P</span> PeopleSpace</a>
+    <div class="story-content">
+      <p class="eyebrow">Simple. Secure. Organized.</p>
+      <h1>Your people, all in one thoughtful space.</h1>
+      <p class="story-copy">Manage your profile and, as an admin, find every user without the clutter.</p>
+      <div class="quote-card">
+        <div class="avatar-stack"><span>AM</span><span>RK</span><span>+</span></div>
+        <p>Built for focused teams who value clarity.</p>
+      </div>
+    </div>
+    <p class="story-footer">Protected with secure, HTTP-only authentication.</p>
+  </section>
+
+  <section class="auth-form-panel">
+    <div class="auth-form-wrap">
+      <div class="mobile-brand"><span class="brand-mark">P</span> PeopleSpace</div>
+      <p class="eyebrow">Welcome back</p>
+      <h2>Sign in to your account</h2>
+      <p class="muted">Enter your details to continue to your dashboard.</p>
+
+      @if (error()) {
+        <div class="alert" role="alert">{{ error() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label for="email">Email address</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉</span>
+          <input id="email" type="email" formControlName="email" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small class="field-error">Enter a valid email address.</small>
+        }
+
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">●</span>
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          />
+          <button class="reveal" type="button" (click)="showPassword.set(!showPassword())">
+            {{ showPassword() ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small class="field-error">Password is required.</small>
+        }
+
+        <button class="primary-button" type="submit" [disabled]="loading()">
+          {{ loading() ? 'Signing in…' : 'Sign in' }}
+        </button>
+      </form>
+
+      <p class="auth-switch">New to PeopleSpace? <a routerLink="/signup">Create an account</a></p>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,125 @@
+<div class="dashboard-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">P</span> <span>PeopleSpace</span></div>
+    <nav>
+      <a class="nav-item active"><span>⌂</span> Overview</a>
+      @if (user()?.role === 'admin') {
+        <a class="nav-item" href="#users"><span>◎</span> Users</a>
+      }
+    </nav>
+    <div class="sidebar-user">
+      <span class="avatar small">{{ initials() }}</span>
+      <div><strong>{{ user()?.name }}</strong><small>{{ user()?.role }}</small></div>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <div class="mobile-brand"><span class="brand-mark">P</span> PeopleSpace</div>
+      <div class="topbar-actions">
+        <span class="role-badge">{{ user()?.role }}</span>
+        <button class="ghost-button" type="button" (click)="logout()">Sign out</button>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <section class="welcome">
+        <div>
+          <p class="eyebrow">{{ user()?.role === 'admin' ? 'Admin workspace' : 'Your workspace' }}</p>
+          <h1>Good to see you, {{ user()?.name?.split(' ')?.[0] }}.</h1>
+          <p class="muted">
+            {{ user()?.role === 'admin' ? 'Here is what is happening across your user community.' : 'Your account details are safe and up to date.' }}
+          </p>
+        </div>
+        <span class="date-chip">{{ user()?.createdAt | date: 'EEEE, d MMMM' }}</span>
+      </section>
+
+      @if (error()) {
+        <div class="alert" role="alert">{{ error() }}</div>
+      }
+
+      @if (user()?.role === 'admin') {
+        <section class="stats-grid">
+          <article class="stat-card accent-card">
+            <span class="stat-icon">↗</span><p>Registered users</p>
+            <strong>{{ summary()?.totalUsers ?? '—' }}</strong><small>Active accounts</small>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon purple">⌘</span><p>Cities reached</p>
+            <strong>{{ summary()?.totalCities ?? '—' }}</strong><small>Across all profiles</small>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon orange">◆</span><p>Administrators</p>
+            <strong>{{ summary()?.totalAdmins ?? '—' }}</strong><small>Management access</small>
+          </article>
+        </section>
+
+        <section class="table-card" id="users">
+          <div class="section-heading">
+            <div><p class="eyebrow">Directory</p><h2>Manage users</h2></div>
+            <span class="count-pill">{{ pagination().total }} total</span>
+          </div>
+          <div class="filter-bar">
+            <div class="search-box"><span>⌕</span><input [(ngModel)]="search" (keyup.enter)="loadAdminData()" placeholder="Search name, email, phone or pincode" /></div>
+            <select [(ngModel)]="city" aria-label="Filter by city">
+              <option value="">All cities</option>
+              @for (option of cities(); track option) { <option [value]="option">{{ option }}</option> }
+            </select>
+            <button class="secondary-button" type="button" (click)="loadAdminData()">Apply filters</button>
+            @if (search || city) { <button class="text-button" type="button" (click)="clearFilters()">Clear</button> }
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>User</th><th>Phone</th><th>Location</th><th>Joined</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                @for (item of users(); track item.id) {
+                  <tr>
+                    <td><div class="user-cell"><span class="avatar tiny">{{ item.name.slice(0, 2).toUpperCase() }}</span><div><strong>{{ item.name }}</strong><small>{{ item.email }}</small></div></div></td>
+                    <td>{{ item.phone }}</td>
+                    <td>{{ item.city }} <small class="inline-muted">{{ item.pincode }}</small></td>
+                    <td>{{ item.createdAt | date: 'd MMM y' }}</td>
+                    <td><button class="delete-button" type="button" [disabled]="deletingId() === item.id || item.id === user()?.id" (click)="deleteUser(item)">{{ deletingId() === item.id ? 'Deleting…' : 'Delete' }}</button></td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="5"><div class="empty-state"><span>⌕</span><strong>No users found</strong><p>Try changing your search or city filter.</p></div></td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <footer class="pagination">
+            <span>Page {{ pagination().page }} of {{ pagination().pages }}</span>
+            <div>
+              <button class="page-button" [disabled]="pagination().page <= 1 || loading()" (click)="loadAdminData(pagination().page - 1)">Previous</button>
+              <button class="page-button" [disabled]="pagination().page >= pagination().pages || loading()" (click)="loadAdminData(pagination().page + 1)">Next</button>
+            </div>
+          </footer>
+        </section>
+      } @else {
+        <section class="profile-layout">
+          <article class="profile-card">
+            <div class="profile-cover"></div>
+            <div class="profile-body">
+              <span class="avatar large">{{ initials() }}</span>
+              <span class="status-dot" title="Active account"></span>
+              <h2>{{ user()?.name }}</h2>
+              <p>{{ user()?.email }}</p>
+              <span class="role-badge">Member</span>
+            </div>
+          </article>
+          <article class="details-card">
+            <div class="section-heading"><div><p class="eyebrow">Account</p><h2>Your details</h2></div><span class="secure-label">● Secure</span></div>
+            <dl class="details-list">
+              <div><dt>Full name</dt><dd>{{ user()?.name }}</dd></div>
+              <div><dt>Email address</dt><dd>{{ user()?.email }}</dd></div>
+              <div><dt>Phone number</dt><dd>{{ user()?.phone }}</dd></div>
+              <div><dt>City</dt><dd>{{ user()?.city }}</dd></div>
+              <div><dt>Pincode</dt><dd>{{ user()?.pincode }}</dd></div>
+              <div><dt>Member since</dt><dd>{{ user()?.createdAt | date: 'd MMMM y' }}</dd></div>
+            </dl>
+          </article>
+        </section>
+      }
+    </div>
+  </main>
+</div>

@@ -1,0 +1,102 @@
+services:
+
+  mongo:
+    image: mongo:7
+
+    container_name: dockertestapp-mongo
+
+    restart: unless-stopped
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+
+    ports:
+      - "27017:27017"
+
+    volumes:
+      - mongo_data:/data/db
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "-u",
+          "admin",
+          "-p",
+          "qwerty",
+          "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.adminCommand('ping')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+
+  mongo-express:
+    image: mongo-express:1.0.2
+
+    container_name: dockertestapp-mongo-express
+
+    restart: unless-stopped
+
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: qwerty
+      ME_CONFIG_MONGODB_URL: mongodb://admin:qwerty@mongo:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH: "false"
+
+    ports:
+      - "8081:8081"
+
+
+  backend:
+    build:
+      context: ./backend
+
+    container_name: dockertestapp-backend
+
+    restart: unless-stopped
+
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4000
+      MONGODB_URI: mongodb://admin:qwerty@mongo:27017/user_dashboard?authSource=admin
+      JWT_SECRET: replace-with-a-long-random-secret
+      JWT_EXPIRES_IN: 7d
+      CLIENT_URL: http://localhost:4200
+
+    ports:
+      - "4000:4000"
+
+
+  frontend:
+    build:
+      context: ./frontend
+
+    container_name: dockertestapp-frontend
+
+    restart: unless-stopped
+
+    depends_on:
+      - backend
+
+    ports:
+      - "4200:80"
+
+
+volumes:
+  mongo_data:
