@@ -124,7 +124,11 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 30m
+          script_stop: true
           script: |
-            docker compose --env-file ~/.env -f ~/docker-compose.ec2.yaml pull
-            docker compose --env-file ~/.env -f ~/docker-compose.ec2.yaml up -d
-            docker image prune -f
+            set -euo pipefail
+            sudo docker compose --env-file ~/.env -f ~/docker-compose.ec2.yaml pull
+            sudo docker compose --env-file ~/.env -f ~/docker-compose.ec2.yaml up -d --remove-orphans --wait --wait-timeout 300
+            sudo docker compose --env-file ~/.env -f ~/docker-compose.ec2.yaml ps
+            sudo docker image prune -f
