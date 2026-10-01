@@ -114,8 +114,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: docker-compose.yaml
+          source: deploy/docker-compose.ec2.yaml
           target: ~/
+          strip_components: 1
 
       - name: Deploy latest images on EC2
         uses: appleboy/ssh-action@v1.2.0
@@ -124,6 +125,6 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker compose --env-file ~/.env -f ~/docker-compose.yaml pull
-            docker compose --env-file ~/.env -f ~/docker-compose.yaml up -d
+            docker compose --env-file ~/.env -f ~/docker-compose.ec2.yaml pull
+            docker compose --env-file ~/.env -f ~/docker-compose.ec2.yaml up -d
             docker image prune -f
